@@ -60,7 +60,7 @@ public class Solution01 {
             imageUrl = result2
                     .split("\"url\": \"")[1]
                     .split("\",")[0];
-            System.out.println("result2 = " + imageUrl);
+            
 
         }catch (Exception e){
             e.printStackTrace();
