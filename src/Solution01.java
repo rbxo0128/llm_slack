@@ -6,7 +6,7 @@ public class Solution01 {
     public static void main(String[] args) {
         LLM llm = new LLM();
 
-        String prompt = "주식이 뭐야?";
+        String prompt = System.getenv("PROMPT");
         String result;
         String title = "";
         String text = "";
@@ -60,7 +60,7 @@ public class Solution01 {
             imageUrl = result2
                     .split("\"url\": \"")[1]
                     .split("\",")[0];
-            
+
 
         }catch (Exception e){
             e.printStackTrace();
