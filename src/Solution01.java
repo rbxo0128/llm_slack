@@ -6,58 +6,25 @@ public class Solution01 {
     public static void main(String[] args) {
         LLM llm = new LLM();
 
-        String prompt = System.getenv("PROMPT");
-        String result;
+        //String prompt = System.getenv("PROMPT");
+        String prompt = "미스포츈";
         String title = "";
         String text = "";
         String imageUrl = "";
 
         try{
-            result = llm.callAPI(LLM.LLMModel.GEMINI_2_0_FLASH, """
-                {
-                                  "contents": [
-                                    {
-                                      "role": "user",
-                                      "parts": [
-                                        {
-                                          "text": "%s"
-                                        }
-                                      ]
-                                    }
-                                  ],
-                                }
-                """.formatted(prompt));
+            String geminiResponse = llm.callAPI(LLM.LLMModel.GEMINI_2_0_FLASH, prompt);
+            String groqResponse = llm.callAPI(LLM.LLMModel.MIXTRAL_8x7b_32768, prompt);
+            groqResponse = groqResponse.split("\"content\":")[1].split("}")[0].replace("\"","").replace(".","").trim();
+            System.out.println("groqResponse = " + groqResponse);
+            String togetherResponse = llm.callAPI(LLM.LLMModel.FLUX_1_SCHNELL_FREE, groqResponse);
 
-            String groqBody = """
-                {
-                    "messages": [
-                        {
-                            "role": "user",
-                            "content": "%s"
-                        }
-                    ],
-                    "model": "%s"
-                }
-                """.formatted(prompt, LLM.LLMModel.MIXTRAL_8x7b_32768.name);
+            title = prompt;
+            text = geminiResponse.split("\"text\": ")[1].split("}")[0].replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n").trim();
 
-            String result1 = llm.callAPI(LLM.LLMModel.MIXTRAL_8x7b_32768, groqBody);
+            System.out.println("text = " + text);
 
-
-            String togetherBody = """
-                {
-                    "prompt": "%s",
-                    "width": 1024,
-                    "height": 1024,
-                    "model": "%s"
-                }
-                """.formatted(prompt, LLM.LLMModel.STABLE_DIFFUSION_XL_BASE_1_0.name);
-            String result2 = llm.callAPI(LLM.LLMModel.STABLE_DIFFUSION_XL_BASE_1_0, togetherBody);
-
-
-            title = result.split("\"text\": ")[1].split("}")[0].replace("\\n", " ").replace("\"", "").trim();
-            text = result1.split("\"content\":")[1].split("}")[0].replace("\\n", " ").replace("\"", "").trim();
-
-            imageUrl = result2
+            imageUrl = togetherResponse
                     .split("\"url\": \"")[1]
                     .split("\",")[0];
 
